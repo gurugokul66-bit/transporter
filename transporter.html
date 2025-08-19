@@ -1,0 +1,432 @@
+import React, { useState } from 'react';
+import { Plus, Truck, FileText, Calendar, DollarSign, User, Hash, Weight } from 'lucide-react';
+
+const TransportManagementApp = () => {
+  const [transportData, setTransportData] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
+    invoiceNo: '',
+    vehicleNo: '',
+    panNo: '',
+    driverNo: '',
+    date: '',
+    weight: '',
+    freight: '',
+    amount: '',
+    expence: '',
+    mamul: '',
+    advance: ''
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    let updatedData = {
+      ...formData,
+      [name]: value
+    };
+    
+    // Auto calculate amount when weight or freight changes
+    if (name === 'weight' || name === 'freight') {
+      const weight = name === 'weight' ? parseFloat(value) || 0 : parseFloat(formData.weight) || 0;
+      const freight = name === 'freight' ? parseFloat(value) || 0 : parseFloat(formData.freight) || 0;
+      updatedData.amount = (weight * freight).toFixed(2);
+    }
+    
+    setFormData(updatedData);
+  };
+
+  const calculateTotals = () => {
+    const amount = parseFloat(formData.amount) || 0;
+    const expence = parseFloat(formData.expence) || 0;
+    const mamul = parseFloat(formData.mamul) || 0;
+    const advance = parseFloat(formData.advance) || 0;
+    
+    const total = amount + expence - mamul - advance;
+    
+    return { total };
+  };
+
+  const handleSubmit = () => {
+    if (!formData.invoiceNo || !formData.vehicleNo || !formData.panNo || !formData.driverNo || !formData.date || !formData.weight || !formData.freight) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    
+    const { total } = calculateTotals();
+    
+    const newRecord = {
+      id: Date.now(),
+      ...formData,
+      total: total,
+      createdAt: new Date().toLocaleString()
+    };
+    
+    setTransportData(prev => [...prev, newRecord]);
+    setFormData({
+      invoiceNo: '',
+      vehicleNo: '',
+      panNo: '',
+      driverNo: '',
+      date: '',
+      weight: '',
+      freight: '',
+      amount: '',
+      expence: '',
+      mamul: '',
+      advance: ''
+    });
+    setShowForm(false);
+  };
+
+  const { total: calcTotal } = calculateTotals();
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="bg-blue-600 p-3 rounded-full">
+                <Truck className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-800">SRI KTM AGENCY</h1>
+                <p className="text-gray-600">Transport Management System</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowForm(!showForm)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Add Transport</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Form */}
+        {showForm && (
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
+              <FileText className="w-6 h-6 mr-2" />
+              Register Transport Details
+            </h2>
+            
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <Hash className="w-4 h-4 inline mr-1" />
+                    Invoice No
+                  </label>
+                  <input
+                    type="text"
+                    name="invoiceNo"
+                    value={formData.invoiceNo}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="INV-0345"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <Truck className="w-4 h-4 inline mr-1" />
+                    Vehicle No
+                  </label>
+                  <input
+                    type="text"
+                    name="vehicleNo"
+                    value={formData.vehicleNo}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="TN52Z3234"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <FileText className="w-4 h-4 inline mr-1" />
+                    Pan No
+                  </label>
+                  <input
+                    type="text"
+                    name="panNo"
+                    value={formData.panNo}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="HEFPS3978D"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <User className="w-4 h-4 inline mr-1" />
+                    Driver No
+                  </label>
+                  <input
+                    type="text"
+                    name="driverNo"
+                    value={formData.driverNo}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="9944905377"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <Calendar className="w-4 h-4 inline mr-1" />
+                    Date
+                  </label>
+                  <input
+                    type="date"
+                    name="date"
+                    value={formData.date}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <Weight className="w-4 h-4 inline mr-1" />
+                    Weight (TON)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    name="weight"
+                    value={formData.weight}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="22.20"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <DollarSign className="w-4 h-4 inline mr-1" />
+                    Freight
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    name="freight"
+                    value={formData.freight}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="1100.00"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <DollarSign className="w-4 h-4 inline mr-1" />
+                    Amount (Auto-calculated)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    name="amount"
+                    value={formData.amount}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Auto-calculated from Weight × Freight"
+                    readOnly
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Expence(+)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    name="expence"
+                    value={formData.expence}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="1650.00"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Mamul(-)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    name="mamul"
+                    value={formData.mamul}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="1550.00"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Advance(-)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    name="advance"
+                    value={formData.advance}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+
+              {/* Live Calculation Display */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="grid grid-cols-1 gap-4 text-sm">
+                  <div className="flex justify-between">
+                    <span className="font-medium">Final Amount:</span>
+                    <span className="text-green-600 font-bold">₹{calcTotal.toFixed(2)}</span>
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    Calculation: Amount (₹{parseFloat(formData.amount) || 0}) + Expense (₹{parseFloat(formData.expence) || 0}) - Mamul (₹{parseFloat(formData.mamul) || 0}) - Advance (₹{parseFloat(formData.advance) || 0})
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex space-x-4">
+                <button
+                  onClick={handleSubmit}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors"
+                >
+                  Save Transport Details
+                </button>
+                <button
+                  onClick={() => setShowForm(false)}
+                  className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Data Table */}
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="px-6 py-4 bg-gray-50 border-b">
+            <h3 className="text-xl font-semibold text-gray-800">Transport Records</h3>
+          </div>
+          
+          {transportData.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">
+              <Truck className="w-16 h-16 mx-auto mb-4 opacity-50" />
+              <p className="text-lg">No transport records yet</p>
+              <p className="text-sm">Click "Add Transport" to register your first transport detail</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehicle</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Weight</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Freight</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Final Amount</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {transportData.map((record) => (
+                    <tr key={record.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{record.invoiceNo}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{record.vehicleNo}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{record.date}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{record.weight} TON</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">₹{parseFloat(record.freight).toFixed(2)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">₹{parseFloat(record.amount).toFixed(2)}</td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-green-600">₹{record.total.toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Summary Stats */}
+        {transportData.length > 0 && (
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              <div className="flex items-center">
+                <div className="p-3 rounded-full bg-blue-100 mr-4">
+                  <FileText className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Total Records</p>
+                  <p className="text-2xl font-bold text-gray-900">{transportData.length}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              <div className="flex items-center">
+                <div className="p-3 rounded-full bg-green-100 mr-4">
+                  <DollarSign className="w-6 h-6 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Total Amount</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    ₹{transportData.reduce((sum, record) => sum + parseFloat(record.amount), 0).toFixed(2)}
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              <div className="flex items-center">
+                <div className="p-3 rounded-full bg-yellow-100 mr-4">
+                  <Weight className="w-6 h-6 text-yellow-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Total Weight</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {transportData.reduce((sum, record) => sum + parseFloat(record.weight), 0).toFixed(2)} TON
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              <div className="flex items-center">
+                <div className="p-3 rounded-full bg-purple-100 mr-4">
+                  <Truck className="w-6 h-6 text-purple-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Total Final Amount</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    ₹{transportData.reduce((sum, record) => sum + record.total, 0).toFixed(2)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default TransportManagementApp;
